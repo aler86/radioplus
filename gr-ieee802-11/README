@@ -1,0 +1,33 @@
+Hi,
+
+this code is already ported to GNU Radio v3.7. This version of GNU Radio is not backwards compatible. So checkout the current master branch.
+
+DEPENDENCIES
+============
+IT++ (Version: 4.2-4)
+GNU Radio (v3.7 with UHD support)
+
+INSTALLATION
+============
+sudo apt-get install libitpp-dev
+git clone git://github.com/bastibl/gr-ieee802-11.git
+cd gr-ieee802-11
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig
+
+USAGE
+===========
+Open examples/rx.grc.
+
+CONTRIBUTORS
+============
+Bastian Bloessl
+Tim O'Shea (port to GNU Radio v3.7)
+
+FURTHER INFORMATION
+===================
+http://www.ccs-labs.org/
