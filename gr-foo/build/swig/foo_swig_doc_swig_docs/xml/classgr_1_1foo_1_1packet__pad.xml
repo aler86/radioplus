@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.7.6.1">
+  <compounddef id="classgr_1_1foo_1_1packet__pad" kind="class" prot="public">
+    <compoundname>gr::foo::packet_pad</compoundname>
+    <includes refid="packet__pad_8h" local="no">packet_pad.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classgr_1_1foo_1_1packet__pad_1a4b0710129360600886fcd815c46ae842" prot="public" static="no">
+        <type>boost::shared_ptr&lt; <ref refid="classgr_1_1foo_1_1packet__pad" kindref="compound">packet_pad</ref> &gt;</type>
+        <definition>typedef boost::shared_ptr&lt;packet_pad&gt; gr::foo::packet_pad::sptr</definition>
+        <argsstring></argsstring>
+        <name>sptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/sunny/src/gr-foo/include/foo/packet_pad.h" line="30" bodyfile="/home/sunny/src/gr-foo/include/foo/packet_pad.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classgr_1_1foo_1_1packet__pad_1a37452d6bf593c35a59117ff6becdb4e1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classgr_1_1foo_1_1packet__pad_1a4b0710129360600886fcd815c46ae842" kindref="member">sptr</ref></type>
+        <definition>static sptr gr::foo::packet_pad::make</definition>
+        <argsstring>(bool debug=false, unsigned int pad_front=0, unsigned int pad_tail=0)</argsstring>
+        <name>make</name>
+        <param>
+          <type>bool</type>
+          <declname>debug</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>pad_front</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>pad_tail</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/sunny/src/gr-foo/include/foo/packet_pad.h" line="31"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/sunny/src/gr-foo/include/foo/packet_pad.h" line="27" bodyfile="/home/sunny/src/gr-foo/include/foo/packet_pad.h" bodystart="26" bodyend="33"/>
+    <listofallmembers>
+      <member refid="classgr_1_1foo_1_1packet__pad_1a37452d6bf593c35a59117ff6becdb4e1" prot="public" virt="non-virtual"><scope>gr::foo::packet_pad</scope><name>make</name></member>
+      <member refid="classgr_1_1foo_1_1packet__pad_1a4b0710129360600886fcd815c46ae842" prot="public" virt="non-virtual"><scope>gr::foo::packet_pad</scope><name>sptr</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

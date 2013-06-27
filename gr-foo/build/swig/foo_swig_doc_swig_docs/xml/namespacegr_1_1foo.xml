@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.7.6.1">
+  <compounddef id="namespacegr_1_1foo" kind="namespace">
+    <compoundname>gr::foo</compoundname>
+    <innerclass refid="classgr_1_1foo_1_1burst__tagger" prot="public">gr::foo::burst_tagger</innerclass>
+    <innerclass refid="classgr_1_1foo_1_1packet__dropper" prot="public">gr::foo::packet_dropper</innerclass>
+    <innerclass refid="classgr_1_1foo_1_1packet__pad" prot="public">gr::foo::packet_pad</innerclass>
+    <innerclass refid="classgr_1_1foo_1_1periodic__msg__source" prot="public">gr::foo::periodic_msg_source</innerclass>
+    <innerclass refid="classgr_1_1foo_1_1wireshark__connector" prot="public">gr::foo::wireshark_connector</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespacegr_1_1foo_1ad257426f8bd9ef5afd72ca21d4a2816f" prot="public" static="no">
+        <name>LinkType</name>
+        <enumvalue id="namespacegr_1_1foo_1ad257426f8bd9ef5afd72ca21d4a2816fa8c585b525ce7a49d12a1d5ce400047bc" prot="public">
+          <name>WIFI</name>
+          <initializer> 127</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacegr_1_1foo_1ad257426f8bd9ef5afd72ca21d4a2816fabde45d4f00633efae4e0e8183f90b8f8" prot="public">
+          <name>ZIGBEE</name>
+          <initializer> 195</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/sunny/src/gr-foo/include/foo/wireshark_connector.h" line="26" bodyfile="/home/sunny/src/gr-foo/include/foo/wireshark_connector.h" bodystart="26" bodyend="29"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/sunny/src/gr-foo/include/foo/burst_tagger.h" line="28"/>
+  </compounddef>
+</doxygen>

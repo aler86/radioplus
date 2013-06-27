@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.7.6.1">
+  <compounddef id="classgr_1_1foo_1_1burst__tagger" kind="class" prot="public">
+    <compoundname>gr::foo::burst_tagger</compoundname>
+    <includes refid="burst__tagger_8h" local="no">burst_tagger.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classgr_1_1foo_1_1burst__tagger_1a4047b8aa79888cdda404a6a1a3b5de14" prot="public" static="no">
+        <type>boost::shared_ptr&lt; <ref refid="classgr_1_1foo_1_1burst__tagger" kindref="compound">burst_tagger</ref> &gt;</type>
+        <definition>typedef boost::shared_ptr&lt;burst_tagger&gt; gr::foo::burst_tagger::sptr</definition>
+        <argsstring></argsstring>
+        <name>sptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/sunny/src/gr-foo/include/foo/burst_tagger.h" line="32" bodyfile="/home/sunny/src/gr-foo/include/foo/burst_tagger.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classgr_1_1foo_1_1burst__tagger_1a4995506e66e98cf1b5b3e1d0369aa6b3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classgr_1_1foo_1_1burst__tagger_1a4047b8aa79888cdda404a6a1a3b5de14" kindref="member">sptr</ref></type>
+        <definition>static sptr gr::foo::burst_tagger::make</definition>
+        <argsstring>(pmt::pmt_t tag_name, unsigned int mult)</argsstring>
+        <name>make</name>
+        <param>
+          <type>pmt::pmt_t</type>
+          <declname>tag_name</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>mult</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/sunny/src/gr-foo/include/foo/burst_tagger.h" line="34"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/sunny/src/gr-foo/include/foo/burst_tagger.h" line="30" bodyfile="/home/sunny/src/gr-foo/include/foo/burst_tagger.h" bodystart="30" bodyend="35"/>
+    <listofallmembers>
+      <member refid="classgr_1_1foo_1_1burst__tagger_1a4995506e66e98cf1b5b3e1d0369aa6b3" prot="public" virt="non-virtual"><scope>gr::foo::burst_tagger</scope><name>make</name></member>
+      <member refid="classgr_1_1foo_1_1burst__tagger_1a4047b8aa79888cdda404a6a1a3b5de14" prot="public" virt="non-virtual"><scope>gr::foo::burst_tagger</scope><name>sptr</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

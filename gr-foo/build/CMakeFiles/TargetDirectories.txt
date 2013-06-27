@@ -1,0 +1,9 @@
+/home/sunny/src/gr-foo/build/swig/CMakeFiles/_foo_swig.dir
+/home/sunny/src/gr-foo/build/swig/CMakeFiles/_foo_swig_doc_tag.dir
+/home/sunny/src/gr-foo/build/swig/CMakeFiles/_foo_swig_swig_tag.dir
+/home/sunny/src/gr-foo/build/lib/CMakeFiles/gnuradio-foo.dir
+/home/sunny/src/gr-foo/build/apps/CMakeFiles/pygen_apps_9a6dd.dir
+/home/sunny/src/gr-foo/build/python/CMakeFiles/pygen_python_cde66.dir
+/home/sunny/src/gr-foo/build/swig/CMakeFiles/pygen_swig_5834e.dir
+/home/sunny/src/gr-foo/build/lib/CMakeFiles/test-foo.dir
+/home/sunny/src/gr-foo/build/CMakeFiles/uninstall.dir

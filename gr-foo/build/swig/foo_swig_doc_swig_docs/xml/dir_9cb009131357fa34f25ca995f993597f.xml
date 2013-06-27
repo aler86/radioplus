@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.7.6.1">
+  <compounddef id="dir_9cb009131357fa34f25ca995f993597f" kind="dir">
+    <compoundname>/home/sunny/src/gr-foo/include/foo/</compoundname>
+    <innerfile refid="api_8h">api.h</innerfile>
+    <innerfile refid="burst__tagger_8h">burst_tagger.h</innerfile>
+    <innerfile refid="packet__dropper_8h">packet_dropper.h</innerfile>
+    <innerfile refid="packet__pad_8h">packet_pad.h</innerfile>
+    <innerfile refid="periodic__msg__source_8h">periodic_msg_source.h</innerfile>
+    <innerfile refid="wireshark__connector_8h">wireshark_connector.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/sunny/src/gr-foo/include/foo/"/>
+  </compounddef>
+</doxygen>
