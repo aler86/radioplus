@@ -16,7 +16,7 @@
  */
 #ifndef INCLUDED_GR_IEEE802_11_OFDM_PARSE_MAC_IMPL_H
 #define INCLUDED_GR_IEEE802_11_OFDM_PARSE_MAC_IMPL_H
-
+//MAC Header
 struct mac_header {
 	uint16_t  frame_control;
 	uint16_t  duration;

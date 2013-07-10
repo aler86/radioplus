@@ -26,6 +26,7 @@ using namespace gr::ieee802_11;
 class ofdm_parse_mac_impl : public ofdm_parse_mac {
 
 #define dout d_debug && std::cout
+// Constructor
 
 public:
 
@@ -34,22 +35,31 @@ ofdm_parse_mac_impl(bool debug) :
 				gr::io_signature::make (0, 0, 0),
 				gr::io_signature::make (0, 0, 0)),
 		d_debug(debug) {
-
-    message_port_register_out(pmt::mp("out"));
-
-    message_port_register_in(pmt::mp("in"));
-    set_msg_handler(pmt::mp("in"), boost::bind(&ofdm_parse_mac_impl::parse, this, _1));
+// declaring both input and output as message ports
+	message_port_register_out(pmt::mp("out"));
+	message_port_register_in(pmt::mp("in"));
+//check if the input is pair
+	if (pmt::is_pair(pmt::mp("in"))){
+		p_dict = pmt::car(pmt::mp("in"))//get the dictionary
+		pmt::pmt_t msg = pmt::cdr(pmt::mp("in"))//get the blob
+		set_msg_handler(pmt::mp("in"), boost::bind(&ofdm_parse_mac_impl::parse, msg, _1));//pass the blob
+	}
+	else
+	{
+		set_msg_handler(pmt::mp("in"), boost::bind(&ofdm_parse_mac_impl::parse, this, _1));//pass the input as it is
+	}
+//to set the call back on input to the parse, have replaced "this" with pmt::pmt_t msg, need to check if thats fine
 }
 
 ~ofdm_parse_mac_impl() {
 
 }
-
+/*
 unsigned int update_crc32(unsigned int crc, const char *data, size_t len) {
 	int j;
 	unsigned int byte, mask;
 	static unsigned int table[256];
-	/* Set up the table if necesary */
+	// Set up the table if necesary 
 	if (table[1] == 0) {
 		for (byte = 0; byte <= 255; byte++) {
 			crc = byte;
@@ -61,7 +71,7 @@ unsigned int update_crc32(unsigned int crc, const char *data, size_t len) {
 		}
 	}
 
-	/* Calculate the CRC32*/
+	// Calculate the CRC32
 	size_t i = 0;
 	crc = 0xFFFFFFFF;
 	for (i = 0; i < len; i++) {
@@ -77,21 +87,22 @@ unsigned int update_crc32(unsigned int crc, const char *data, size_t len) {
 }
 
 unsigned int crc32(const char *buf, int len) {
-	return update_crc32(0xffffffff, buf, len) ^ 0xffffffff;
+	return update_crc32(0xffffffff, buf, len) ^ 0xffffffff;//XOR
 }
+*/
 
 void parse(pmt::pmt_t msg) {
-
+// if the data is parsed then publish the output port 
 	if(pmt::is_eof_object(msg)) {
-		message_port_pub(pmt::mp("out"), pmt::PMT_EOF);
+		message_port_pub(pmt::mp("out"), pmt::PMT_EOF);//
 		detail().get()->set_done(true);
 		return;
 	}
-
+//If the msg is not a blob abort
 	assert(pmt::is_blob(msg));
 
 	int data_len = pmt::blob_length(msg);
-	mac_header *h = (mac_header*)pmt::blob_data(msg);
+	mac_header *h = (mac_header*)pmt::blob_data(msg);//structur mac_header
 
 	dout << std::endl << "new mac frame  (length " << data_len << ")" << std::endl;
 	dout << "=========================================" << std::endl;
@@ -124,7 +135,7 @@ void parse(pmt::pmt_t msg) {
 			dout << " (unknown)" << std::endl;
 			break;
 	}
-
+/*Check the CRC of data
 	bool crc = check_crc((char*)pmt::blob_data(msg), data_len);
 	dout << "crc ";
 	dout << (crc ? "correct" : "wrong") << std::endl;
@@ -133,6 +144,7 @@ void parse(pmt::pmt_t msg) {
 	if(!crc || data_len < 32) {
 		return;
 	}
+*/
 
 	char *frame = (char*)pmt::blob_data(msg);
 	frame[data_len - 4] = '\n';
@@ -141,14 +153,14 @@ void parse(pmt::pmt_t msg) {
 	if((((h->frame_control) >> 2) & 63) == 2) {
 		print_ascii(frame + 24, data_len - 24 - 4);
 		pmt::pmt_t payload = pmt::make_blob(frame + 24, data_len - 24 - 3);
-
-		message_port_pub(pmt::mp("out"), pmt::cons(pmt::PMT_NIL, payload));
+//publish on out port the pair of car NIL and cdr blob
+		message_port_pub(pmt::mp("outpayload"), pmt::cons(p_dict, payload));
 	// QoS Data
 	} else if((((h->frame_control) >> 2) & 63) == 34) {
 		print_ascii(frame + 26, data_len - 26 - 4);
 		pmt::pmt_t payload = pmt::make_blob(frame + 26, data_len - 26 - 3);
-
-		message_port_pub(pmt::mp("out"), pmt::cons(pmt::PMT_NIL, payload));
+//publish on out port the pair of car NIL and cdr blob
+		message_port_pub(pmt::mp("out"), pmt::cons(p_dict, payload));
 	}
 }
 
@@ -252,7 +264,7 @@ void parse_data(char *buf, int length) {
 		case 1:
 			dout << "Data + CF-ACK";
 			break;
-		case 2:
+		case 2:		pmt::pmt_t encoding = pmt::dict_ref(dict, pmt::mp("encoding"), pmt::PMT_NIL);//if encoding(key) exists in dictionary return the value else retur PMT_NIL
 			dout << "Data + CR-Poll";
 			break;
 		case 3:
@@ -385,7 +397,7 @@ void print_ascii(char* buf, int length) {
 	}
 	dout << std::endl;
 }
-
+// Check the CRC
 bool check_crc(char *data, int len) {
 	unsigned int crc = crc32(data, len);
 	if(crc == 558161692) {
@@ -396,6 +408,7 @@ bool check_crc(char *data, int len) {
 
 private:
 	bool d_debug;
+	pmt::pmt_t p_dict = pmt::make_dict()
 
 };
 

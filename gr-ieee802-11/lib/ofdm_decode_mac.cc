@@ -171,7 +171,7 @@ void print_out() {
 class ofdm_decode_mac_impl : public ofdm_decode_mac {
 
 #define dout d_debug && std::cout
-
+// Constructor which creates the block and also gets the OFDM and Tx_Parameters
 public:
 ofdm_decode_mac_impl(bool debug) : gr::block("ofdm_decode_mac",
 			gr::io_signature::make(1, 1, 48 * sizeof(gr_complex)),
@@ -179,11 +179,57 @@ ofdm_decode_mac_impl(bool debug) : gr::block("ofdm_decode_mac",
 			d_debug(debug),
 			ofdm(BPSK_1_2),
 			tx(ofdm, 0) {
-
+//output port is message
 	message_port_register_out(pmt::mp("out"));
 }
 
 ~ofdm_decode_mac_impl(){
+}
+
+//function of CRC moved here
+unsigned int update_crc32(unsigned int crc, const char *data, size_t len) {
+	int j;
+	unsigned int byte, mask;
+	static unsigned int table[256];
+	/* Set up the table if necesary */
+	if (table[1] == 0) {
+		for (byte = 0; byte <= 255; byte++) {
+			crc = byte;
+			for (j = 7; j >= 0; j--) {
+				mask = -(crc & 1);
+				crc = (crc >> 1) ^ (0xEDB88320 & mask);
+			}
+			table[byte] = crc;
+		}
+	}
+
+	/* Calculate the CRC32*/
+	size_t i = 0;
+	crc = 0xFFFFFFFF;
+	for (i = 0; i < len; i++) {
+		byte = data[i];    //Get next byte
+		crc = (crc >> 8) ^ table[(crc ^ byte) & 0xFF];
+	}
+	unsigned int crc_reversed;
+	crc_reversed = 0x00000000;
+	for (j = 31; j >= 0; j--) {
+		crc_reversed |= ((crc >> j) & 1) << (31 - j);
+	}
+	return crc;
+}
+//function of CRC moved here
+unsigned int crc32(const char *buf, int len) {
+	return update_crc32(0xffffffff, buf, len) ^ 0xffffffff;//XOR
+}
+
+
+// Check the CRC
+bool check_crc(char *data, int len) {
+	unsigned int crc = crc32(data, len);
+	if(crc == 558161692) {
+		return true;
+	}
+	return false;
 }
 
 int general_work (int noutput_items, gr_vector_int& ninput_items,
@@ -195,23 +241,23 @@ int general_work (int noutput_items, gr_vector_int& ninput_items,
 	int i = 0;
 
 	std::vector<gr::tag_t> tags;
-	const uint64_t nread = this->nitems_read(0);
+	const uint64_t nread = this->nitems_read(0);//dint understand it fully
 
 	dout << "Decode MAC: input " << ninput_items[0] << std::endl;
 
 	while(i < ninput_items[0]) {
-
+//get tags which has ofdm_start tag between the range specified
 		get_tags_in_range(tags, 0, nread + i * 48, nread + (i + 1) * 48 - 1,
 			pmt::string_to_symbol("ofdm_start"));
-
+//if there are tags from above range and keyENCODING
 		if(tags.size()) {
 			pmt::pmt_t tuple = tags[0].value;
-			int len_data = pmt::to_uint64(pmt::car(tuple));
-			int encoding = pmt::to_uint64(pmt::cdr(tuple));
+			int len_data = pmt::to_uint64(pmt::car(tuple));//get the car of the pair and convert it into unsigned int 64
+			int encoding = pmt::to_uint64(pmt::cdr(tuple));//get the cdr of pair and convert it into unsigned int 64
 
-			ofdm = ofdm_param((ENCODING)encoding);
-			tx = tx_param(ofdm, len_data);
-
+			ofdm = ofdm_param((ENCODING)encoding);//now get the ofdm param
+			tx = tx_param(ofdm, len_data);//and the tx param
+//limit number of symbol to 100
 			if(tx.n_sym > 100) {
 				tx.n_sym = 100;
 			}
@@ -220,7 +266,7 @@ int general_work (int noutput_items, gr_vector_int& ninput_items,
 				<< "  symbols " << tx.n_sym << "  encoding "
 				<< encoding << std::endl;
 		}
-
+//copy the frame
 		if(copied < tx.n_sym) {
 			std::memcpy(sym + (copied * 48), in, 48 * sizeof(gr_complex));
 			copied++;
@@ -240,6 +286,11 @@ int general_work (int noutput_items, gr_vector_int& ninput_items,
 	return 0;
 }
 
+void encoding(){
+	dout << "encoding begins here" << std::endl;
+	
+}
+
 void decode() {
 	if(ofdm.encoding > 3) {
 		return;
@@ -251,8 +302,22 @@ void decode() {
 	print_output();
 
 	// skip service field
+// Create te blob with output and the size
 	pmt::pmt_t blob = pmt::make_blob(out_bytes + 2, tx.psdu_size);
-	message_port_pub(pmt::mp("out"), blob);
+	pmt::pmt_t p_dict = pmt::make_dict()//create the dictionary
+	p_dict = pmt::dict_add(p_dict, pmt::symbol_to_string("encoding"), pmt::from_long(ofdm.encoding))//Not sure about symbol_to_string
+//function moved to calculate CRC
+	length = pmt::blob_length(blob)
+	bool crc = check_crc((char*)pmt::blob_data(blob), length);
+	dout << "crc ";
+	dout << (crc ? "correct" : "wrong") << std::endl;
+
+
+	if(!crc || length < 32) {
+		return;
+	}
+//give the blob to output port
+	message_port_pub(pmt::mp("out"), pmt::cons(p_dict, blob));
 }
 
 void demodulate() {
