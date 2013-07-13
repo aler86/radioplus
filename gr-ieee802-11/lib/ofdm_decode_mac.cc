@@ -300,14 +300,13 @@ void decode() {
 	decode_conv();
 	descramble();
 	print_output();
-
-	// skip service field
+// skip service field
 // Create te blob with output and the size
 	pmt::pmt_t blob = pmt::make_blob(out_bytes + 2, tx.psdu_size);
-	pmt::pmt_t p_dict = pmt::make_dict()//create the dictionary
-	p_dict = pmt::dict_add(p_dict, pmt::symbol_to_string("encoding"), pmt::from_long(ofdm.encoding))//Not sure about symbol_to_string
+	int length = pmt::blob_length(blob);
+	pmt::pmt_t p_dict = pmt::make_dict();//create the dictionary
+	p_dict = pmt::dict_add(p_dict, pmt::mp("encoding"), pmt::from_long(ofdm.encoding));//Not sure about symbol_to_string
 //function moved to calculate CRC
-	length = pmt::blob_length(blob)
 	bool crc = check_crc((char*)pmt::blob_data(blob), length);
 	dout << "crc ";
 	dout << (crc ? "correct" : "wrong") << std::endl;
