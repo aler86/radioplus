@@ -397,7 +397,7 @@ void print_ascii(char* buf, int length) {
 	}
 	dout << std::endl;
 }
-/* Check the CRC
+// Check the CRC
 bool check_crc(char *data, int len) {
 	unsigned int crc = crc32(data, len);
 	if(crc == 558161692) {
@@ -405,7 +405,7 @@ bool check_crc(char *data, int len) {
 	}
 	return false;
 }
-*/
+
 private:
 	bool d_debug;
 	pmt::pmt_t p_dict = pmt::make_dict()
