@@ -38,16 +38,8 @@ ofdm_parse_mac_impl(bool debug) :
 // declaring both input and output as message ports
 	message_port_register_out(pmt::mp("out"));
 	message_port_register_in(pmt::mp("in"));
-//check if the input is pair
-	if (pmt::is_pair(pmt::mp("in"))){
-		p_dict = pmt::car(pmt::mp("in"))//get the dictionary
-		pmt::pmt_t msg = pmt::cdr(pmt::mp("in"))//get the blob
-		set_msg_handler(pmt::mp("in"), boost::bind(&ofdm_parse_mac_impl::parse, msg, _1));//pass the blob
-	}
-	else
-	{
-		set_msg_handler(pmt::mp("in"), boost::bind(&ofdm_parse_mac_impl::parse, this, _1));//pass the input as it is
-	}
+	set_msg_handler(pmt::mp("in"), boost::bind(&ofdm_parse_mac_impl::parse, this, _1));//pass the input as it is
+
 //to set the call back on input to the parse, have replaced "this" with pmt::pmt_t msg, need to check if thats fine
 }
 
@@ -98,11 +90,14 @@ void parse(pmt::pmt_t msg) {
 		detail().get()->set_done(true);
 		return;
 	}
-//If the msg is not a blob abort
-	assert(pmt::is_blob(msg));
-
-	int data_len = pmt::blob_length(msg);
-	mac_header *h = (mac_header*)pmt::blob_data(msg);//structur mac_header
+//If the msg is not a pair abort
+	assert(pmt::is_pair(msg));
+	pmt::pmt_t p_dict = pmt::make_dict();//create dictionary
+	p_dict = pmt::car(msg);//get the dictionary
+	pmt::pmt_t blobmsg = pmt::cdr(msg);//get the blob
+	
+	int data_len = pmt::blob_length(blobmsg);
+	mac_header *h = (mac_header*)pmt::blob_data(blobmsg);//structur mac_header
 
 	dout << std::endl << "new mac frame  (length " << data_len << ")" << std::endl;
 	dout << "=========================================" << std::endl;
@@ -146,7 +141,7 @@ void parse(pmt::pmt_t msg) {
 	}
 */
 
-	char *frame = (char*)pmt::blob_data(msg);
+	char *frame = (char*)pmt::blob_data(blobmsg);
 	frame[data_len - 4] = '\n';
 
 	// DATA
@@ -264,7 +259,7 @@ void parse_data(char *buf, int length) {
 		case 1:
 			dout << "Data + CF-ACK";
 			break;
-		case 2:		pmt::pmt_t encoding = pmt::dict_ref(dict, pmt::mp("encoding"), pmt::PMT_NIL);//if encoding(key) exists in dictionary return the value else retur PMT_NIL
+		case 2:
 			dout << "Data + CR-Poll";
 			break;
 		case 3:
@@ -397,7 +392,7 @@ void print_ascii(char* buf, int length) {
 	}
 	dout << std::endl;
 }
-// Check the CRC
+/* Check the CRC
 bool check_crc(char *data, int len) {
 	unsigned int crc = crc32(data, len);
 	if(crc == 558161692) {
@@ -405,10 +400,10 @@ bool check_crc(char *data, int len) {
 	}
 	return false;
 }
-
+*/
 private:
 	bool d_debug;
-	pmt::pmt_t p_dict = pmt::make_dict()
+	
 
 };
 
