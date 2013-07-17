@@ -40,8 +40,7 @@
 # December 2009
 
 #
-# Modified by lzyou@ie.cuhk.edu.hk
-# Feb. 8, 2012
+# Modified by shashankgaur@ieee.org
 #
 
 import time, struct, sys
