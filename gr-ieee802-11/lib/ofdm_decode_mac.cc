@@ -186,43 +186,6 @@ ofdm_decode_mac_impl(bool debug) : gr::block("ofdm_decode_mac",
 ~ofdm_decode_mac_impl(){
 }
 
-//function of CRC moved here
-unsigned int update_crc32(unsigned int crc, const char *data, size_t len) {
-	int j;
-	unsigned int byte, mask;
-	static unsigned int table[256];
-	/* Set up the table if necesary */
-	if (table[1] == 0) {
-		for (byte = 0; byte <= 255; byte++) {
-			crc = byte;
-			for (j = 7; j >= 0; j--) {
-				mask = -(crc & 1);
-				crc = (crc >> 1) ^ (0xEDB88320 & mask);
-			}
-			table[byte] = crc;
-		}
-	}
-
-	/* Calculate the CRC32*/
-	size_t i = 0;
-	crc = 0xFFFFFFFF;
-	for (i = 0; i < len; i++) {
-		byte = data[i];    //Get next byte
-		crc = (crc >> 8) ^ table[(crc ^ byte) & 0xFF];
-	}
-	unsigned int crc_reversed;
-	crc_reversed = 0x00000000;
-	for (j = 31; j >= 0; j--) {
-		crc_reversed |= ((crc >> j) & 1) << (31 - j);
-	}
-	return crc;
-}
-//function of CRC moved here
-unsigned int crc32(const char *buf, int len) {
-	return update_crc32(0xffffffff, buf, len) ^ 0xffffffff;//XOR
-}
-
-
 // Check the CRC
 bool check_crc(char *data, int len) {
 	unsigned int crc = crc32(data, len);
@@ -312,7 +275,7 @@ void decode() {
 	dout << (crc ? "correct" : "wrong") << std::endl;
 
 
-	if(!crc || length < 32) {
+	if(!crc) {
 		return;
 	}
 //give the blob to output port
