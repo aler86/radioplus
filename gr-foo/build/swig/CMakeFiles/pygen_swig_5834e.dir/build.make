@@ -59,6 +59,7 @@ swig/foo_swigPYTHON_wrap.cxx: ../swig/foo_swig.i
 swig/foo_swigPYTHON_wrap.cxx: /usr/local/include/gnuradio/swig/gnuradio.i
 swig/foo_swigPYTHON_wrap.cxx: /usr/local/include/gnuradio/swig/gr_extras.i
 swig/foo_swigPYTHON_wrap.cxx: /usr/local/include/gnuradio/swig/gr_shared_ptr.i
+swig/foo_swigPYTHON_wrap.cxx: swig/foo_swig_doc.i
 swig/foo_swigPYTHON_wrap.cxx: /usr/local/include/gnuradio/swig/gnuradio_swig_bug_workaround.h
 swig/foo_swigPYTHON_wrap.cxx: /usr/local/include/gnuradio/swig/gr_types.i
 swig/foo_swigPYTHON_wrap.cxx: swig/foo_swig.tag
@@ -70,17 +71,17 @@ swig/foo_swigPYTHON_wrap.cxx: ../swig/foo_swig.i
 
 swig/foo_swig.py: swig/foo_swigPYTHON_wrap.cxx
 
+swig/foo_swig_doc.i: swig/foo_swig_doc_swig_docs/xml/index.xml
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/sunny/src/gr-foo/build/CMakeFiles $(CMAKE_PROGRESS_4)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating foo_swig_doc.i"
+	cd /home/sunny/src/gr-foo/docs/doxygen && /usr/bin/python -B /home/sunny/src/gr-foo/docs/doxygen/swig_doc.py /home/sunny/src/gr-foo/build/swig/foo_swig_doc_swig_docs/xml /home/sunny/src/gr-foo/build/swig/foo_swig_doc.i
+
 swig/foo_swig.tag: swig/foo_swig_doc.i
 swig/foo_swig.tag: swig/_foo_swig_swig_tag
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/sunny/src/gr-foo/build/CMakeFiles $(CMAKE_PROGRESS_4)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/sunny/src/gr-foo/build/CMakeFiles $(CMAKE_PROGRESS_5)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating foo_swig.tag"
 	cd /home/sunny/src/gr-foo/build/swig && ./_foo_swig_swig_tag
 	cd /home/sunny/src/gr-foo/build/swig && /usr/bin/cmake -E touch /home/sunny/src/gr-foo/build/swig/foo_swig.tag
-
-swig/foo_swig_doc.i: swig/foo_swig_doc_swig_docs/xml/index.xml
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/sunny/src/gr-foo/build/CMakeFiles $(CMAKE_PROGRESS_5)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating foo_swig_doc.i"
-	cd /home/sunny/src/gr-foo/docs/doxygen && /usr/bin/python -B /home/sunny/src/gr-foo/docs/doxygen/swig_doc.py /home/sunny/src/gr-foo/build/swig/foo_swig_doc_swig_docs/xml /home/sunny/src/gr-foo/build/swig/foo_swig_doc.i
 
 swig/foo_swig_doc_swig_docs/xml/index.xml: swig/_foo_swig_doc_tag
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/sunny/src/gr-foo/build/CMakeFiles $(CMAKE_PROGRESS_6)
@@ -93,8 +94,8 @@ pygen_swig_5834e: swig/foo_swig.pyc
 pygen_swig_5834e: swig/foo_swig.pyo
 pygen_swig_5834e: swig/foo_swigPYTHON_wrap.cxx
 pygen_swig_5834e: swig/foo_swig.py
-pygen_swig_5834e: swig/foo_swig.tag
 pygen_swig_5834e: swig/foo_swig_doc.i
+pygen_swig_5834e: swig/foo_swig.tag
 pygen_swig_5834e: swig/foo_swig_doc_swig_docs/xml/index.xml
 pygen_swig_5834e: swig/CMakeFiles/pygen_swig_5834e.dir/build.make
 .PHONY : pygen_swig_5834e

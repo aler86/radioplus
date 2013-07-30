@@ -14,17 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef INCLUDED_IEEE802_11_OFDM_PARSE_MAC_IMPL_H
-#define INCLUDED_IEEE802_11_OFDM_PARSE_MAC_IMPL_H
+#ifndef INCLUDED_IEEE802_11_ETHER_ENCAP_H
+#define INCLUDED_IEEE802_11_ETHER_ENCAP_H
 
-struct mac_header {
-	uint16_t  frame_control;
-	uint16_t  duration;
-	uint8_t   addr1[6];
-	uint8_t   addr2[6];
-	uint8_t   addr3[6];
-	uint16_t  seq_control;
-}__attribute__((packed));
+#include <ieee802-11/api.h>
+#include <gnuradio/block.h>
 
-#endif /* INCLUDED_IEEE802_11_OFDM_PARSE_MAC_IMPL_H */
+namespace gr {
+namespace ieee802_11 {
 
+class IEEE802_11_API ether_encap : virtual public block
+{
+public:
+
+	typedef boost::shared_ptr<ether_encap> sptr;
+	static sptr make(bool debug);
+
+};
+
+}  // namespace ieee802_11
+}  // namespace gr
+
+#endif /* INCLUDED_IEEE802_11_ETHER_ENCAP_H */

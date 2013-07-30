@@ -6,8 +6,8 @@ FILE(REMOVE_RECURSE
   "foo_swig.pyo"
   "foo_swigPYTHON_wrap.cxx"
   "foo_swig.py"
-  "foo_swig.tag"
   "foo_swig_doc.i"
+  "foo_swig.tag"
   "foo_swig_doc_swig_docs/xml/index.xml"
 )
 

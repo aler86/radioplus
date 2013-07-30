@@ -14,14 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Comments by Shashank Gaur 
 #include "wireshark_connector_impl.h"
 #include <foo/wireshark_connector.h>
 #include <gnuradio/io_signature.h>
 
 #include <iostream>
+#include <fstream>
+#include <stdio.h>
 #include <iomanip>
 #include <sys/time.h>
+#include <sys/wait.h>
 
 using namespace gr::foo;
 
@@ -37,10 +39,11 @@ wireshark_connector_impl::wireshark_connector_impl(LinkType type, bool debug) :
 			d_link(type) {
 
 	message_port_register_in(pmt::mp("in"));//declaring input port as message port
-
+	fp = NULL;
+	input = NULL;
 	d_msg_len = sizeof(pcap_file_hdr);//pcap_file_hdr is structure defined in the header file, line 43
 	d_msg = reinterpret_cast<char*>(std::malloc(d_msg_len));//type casting using reinterpret_cast, memory allocated and then saved as character in d_msg
-
+	int status;
 	pcap_file_hdr *hdr   = reinterpret_cast<pcap_file_hdr*>(d_msg);//hdr pointer for pcap_file_hdr structure initiated, 
 	hdr->magic_number  = 0xa1b2c3d4;
 	hdr->version_major = 2;
@@ -50,6 +53,8 @@ wireshark_connector_impl::wireshark_connector_impl(LinkType type, bool debug) :
 	hdr->snaplen       = 65535;
 	hdr->network       = d_link;
 }
+
+
 //handling the pdu packets
 void
 wireshark_connector_impl::handle_pdu(pmt::pmt_t pdu) {
@@ -172,7 +177,32 @@ wireshark_connector_impl::general_work(int noutput, gr_vector_int& ninput_items,
 
 	int to_copy = std::min((d_msg_len - d_msg_offset), noutput);//calculate size 
 	memcpy(out, d_msg + d_msg_offset, to_copy);//copy the memory to output
-
+	if (fp == NULL){
+		//system("mkfifo /tmp/mine.pcap");
+		fp = popen("wireshark -k -s 0 -i -", "r");
+		if (!fp){
+			dout << "Cannot start wireshark"<<std::endl;
+			throw std::invalid_argument("Cannot start wireshark");		
+		}
+		/*input = fopen("/tmp/mine.pcap", "wb");
+		fwrite(out, sizeof(char), sizeof(out), input);
+		fclose(input);
+		std::ofstream myfile;
+		myfile.open("/tmp/mine.pcap");
+		myfile << d_msg+d_msg_offset;
+		myfile.close();*/
+		fprintf(fp, d_msg + d_msg_offset);	
+	} else if(fp != NULL){
+		/*input = fopen("/tmp/mine.pcap", "wb");
+		fwrite(out, sizeof(char), sizeof(out), input);
+		fclose(input);
+		/*std::ofstream myfile;
+		myfile.open("/tmp/mine.pcap");
+		myfile << d_msg+d_msg_offset;
+		myfile.close();*/
+		fprintf(fp, d_msg + d_msg_offset);
+	}
+	
 	dout << "WIRESHARK: d_msg_offset: " <<  d_msg_offset <<
 		"   to_copy: " << to_copy << 
 		"   d_msg_len " << d_msg_len << std::endl;

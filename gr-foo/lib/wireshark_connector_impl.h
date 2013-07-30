@@ -32,6 +32,8 @@ namespace foo {
 			int         d_msg_offset;
 			int         d_msg_len;
 			char*       d_msg;
+			FILE 	    *fp;
+			FILE        *input;
 			LinkType    d_link;
 		public:
 			wireshark_connector_impl(LinkType type, bool debug);

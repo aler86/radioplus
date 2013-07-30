@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <gnuradio/ieee802_11/ofdm_sync_long.h>
+#include <ieee802-11/ofdm_sync_long.h>
 #include <gnuradio/io_signature.h>
 #include <gnuradio/filter/fir_filter.h>
 #include <gnuradio/fft/fft.h>
@@ -25,13 +25,13 @@
 
 using namespace gr::ieee802_11;
 
-//frequency estimation here, 2 inputs one output defined
+
 class ofdm_sync_long_impl : public ofdm_sync_long {
 
 #define dout d_debug && std::cout
-//Constructor to create the block, called at the end. general_work is always main functions
+
 public:
-ofdm_sync_long_impl(unsigned int sync_lenght, unsigned int freq_est, bool debug) : gr::block("ofdm_sync_long",
+ofdm_sync_long_impl(unsigned int sync_lenght, unsigned int freq_est, bool debug) : block("ofdm_sync_long",
 		gr::io_signature::make2(2, 2, sizeof(gr_complex), sizeof(gr_complex)),
 		gr::io_signature::make(1, 1, sizeof(gr_complex))),
 		d_debug(debug),
@@ -41,14 +41,14 @@ ofdm_sync_long_impl(unsigned int sync_lenght, unsigned int freq_est, bool debug)
 		SYNC_LENGTH(sync_lenght),
 		FREQ_EST(freq_est) {
 
-	set_tag_propagation_policy(gr::block::TPP_DONT);
-	d_fir = new gr::filter::kernel::fir_filter_ccc(1, LONG);//the fir filter instance with decimation and taps
-	d_correlation = gr::fft::malloc_complex(8192);//allocate the fft buffer of size(integer)
+	set_tag_propagation_policy(block::TPP_DONT);
+	d_fir = new gr::filter::kernel::fir_filter_ccc(1, LONG);
+	d_correlation = gr::fft::malloc_complex(8192);
 }
-//destructor of the class, deletes d_fir which is used as pointer
+
 ~ofdm_sync_long_impl(){
-	delete d_fir;//delete the instance
-	gr::fft::free(d_correlation);//free the fft buffer
+	delete d_fir;
+	gr::fft::free(d_correlation);
 }
 
 int general_work (int noutput, gr_vector_int& ninput_items,
@@ -58,21 +58,21 @@ int general_work (int noutput, gr_vector_int& ninput_items,
 	const gr_complex *in = (const gr_complex*)input_items[0];
 	const gr_complex *in_delayed = (const gr_complex*)input_items[1];
 	gr_complex *out = (gr_complex*)output_items[0];
-//inputs and outputs
+
 	dout << "LONG ninput[0] " << ninput_items[0] << "   ninput[1] " <<
 			ninput_items[1] << "  noutput " << noutput <<
 			"   state " << d_state << std::endl;
 
-	int ninput = std::min(ninput_items[0], ninput_items[1]);//get the minimum from the inputs
+	int ninput = std::min(ninput_items[0], ninput_items[1]);
 
-	const unsigned int nread = nitems_read(0);//get the number of items read on the input as opposite as nitems_written
-	get_tags_in_range(d_tags, 0, nread, nread + ninput);//gives the tags between nread and nread+ninput, d_tags is the reference to those tags
-	if (d_tags.size()) {//check the size of the tags got above
-		std::sort(d_tags.begin(), d_tags.end(), gr::tag_t::offset_compare);//compare and sort them on the basis of offset, gr::tag_t was not able to find in API
+	const unsigned int nread = nitems_read(0);
+	get_tags_in_range(d_tags, 0, nread, nread + ninput);
+	if (d_tags.size()) {
+		std::sort(d_tags.begin(), d_tags.end(), gr::tag_t::offset_compare);
 
-		const gr::tag_t &tag = d_tags.front();//first tag
-		const uint64_t offset = tag.offset;//its offset
-//compare the offset and reset d_state 
+		const gr::tag_t &tag = d_tags.front();
+		const uint64_t offset = tag.offset;
+
 		if(offset > nread) {
 			ninput = offset - nread;
 		} else {
@@ -85,27 +85,27 @@ int general_work (int noutput, gr_vector_int& ninput_items,
 
 	int i = 0;
 	int o = 0;
-// Fetch the frame
+
 	switch(d_state) {
 
 	case SYNC:
-		d_fir->filterN(d_correlation, in, std::min(SYNC_LENGTH, std::max(ninput - 63, 0)));//redirected to fir_filter_ccc member function with output input & int
-//repeat while 64 are done
+		d_fir->filterN(d_correlation, in, std::min(SYNC_LENGTH, std::max(ninput - 63, 0)));
+
 		while(i + 63 < ninput) {
 
 			if(d_offset < FREQ_EST) {
-				d_freq_est += in[i] * conj(in[i + 16]);//the algorithm 4 from the paper here 
+				d_freq_est += in[i] * conj(in[i + 16]);
 			}
 
-			d_cor.push_back(std::tuple<double, int>(abs(d_correlation[i]), d_offset)); //add the tuple in the end of the list
+			d_cor.push_back(std::tuple<double, int>(abs(d_correlation[i]), d_offset));
 
 			i++;
 			d_offset++;
 
 			if(d_offset == SYNC_LENGTH) {
-				search_frame_start();//call the function to start the frame
-				d_offset = 0;//reset the offset
-				d_state = COPY;//state to COPY
+				search_frame_start();
+				d_offset = 0;
+				d_state = COPY;
 				break;
 			}
 		}
@@ -127,10 +127,10 @@ int general_work (int noutput, gr_vector_int& ninput_items,
 					add_item_tag(0, nitems_written(0) + o,
 						pmt::string_to_symbol("ofdm_start"),
 						pmt::PMT_T,
-						pmt::string_to_symbol(name()));//add the tag 
+						pmt::string_to_symbol(name()));
 				}
 
-				out[o] = in_delayed[i] * exp(gr_complex(0, d_offset * arg(d_freq_est) / 16));//algorithm 5 from the paper
+				out[o] = in_delayed[i] * exp(gr_complex(0, d_offset * arg(d_freq_est) / 16));
 				o++;
 
 			}
@@ -147,7 +147,7 @@ int general_work (int noutput, gr_vector_int& ninput_items,
 
 			if(!rel) {
 				d_offset = 0;
-				d_freq_est = gr_complex(0, 0);//frequency estimation
+				d_freq_est = gr_complex(0, 0);
 				d_state = SYNC;
 				break;
 			} else if(rel > 15) {
@@ -191,18 +191,18 @@ void forecast (int noutput_items, gr_vector_int &ninput_items_required) {
 
 void search_frame_start() {
 
-	assert(d_cor.size() == SYNC_LENGTH);//Check if the list is equal to sync_length
-	d_cor.sort();//sort and reverse to make it descending order
+	assert(d_cor.size() == SYNC_LENGTH);
+	d_cor.sort();
 	d_cor.reverse();
 
-	std::list<std::tuple<double, int>>::iterator it = d_cor.begin();// iterator for the list
+	std::list<std::tuple<double, int>>::iterator it = d_cor.begin();
 
-	int m1 = std::get<1>(*it);//macro??
+	int m1 = std::get<1>(*it);
 	it++;
 	int m2 = std::get<1>(*it);
 	it++;
 	int m3 = std::get<1>(*it);
-	int m = std::max(m1, std::max(m2, m3));//get the maximum out of 3, three best matches
+	int m = std::max(m1, std::max(m2, m3));
 
 	d_frame_start = m + 64;
 
@@ -213,7 +213,7 @@ void search_frame_start() {
 		//std::cout << std::get<0>(*it) << "  " << std::get<1>(*it) << std::endl;
 	//}
 
-	d_cor.clear();//clear the list
+	d_cor.clear();
 }
 
 private:

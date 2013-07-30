@@ -14,17 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef INCLUDED_IEEE802_11_OFDM_PARSE_MAC_IMPL_H
-#define INCLUDED_IEEE802_11_OFDM_PARSE_MAC_IMPL_H
+#ifndef INCLUDED_IEEE802_11_API_H
+#define INCLUDED_IEEE802_11_API_H
 
-struct mac_header {
-	uint16_t  frame_control;
-	uint16_t  duration;
-	uint8_t   addr1[6];
-	uint8_t   addr2[6];
-	uint8_t   addr3[6];
-	uint16_t  seq_control;
-}__attribute__((packed));
+#include <gnuradio/attributes.h>
 
-#endif /* INCLUDED_IEEE802_11_OFDM_PARSE_MAC_IMPL_H */
+#ifdef gnuradio_ieee802_11_EXPORTS
+#  define IEEE802_11_API __GR_ATTR_EXPORT
+#else
+#  define IEEE802_11_API __GR_ATTR_IMPORT
+#endif
 
+#endif /* INCLUDED_IEEE802_11_API_H */

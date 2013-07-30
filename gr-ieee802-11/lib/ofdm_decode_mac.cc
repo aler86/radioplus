@@ -14,185 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <gnuradio/ieee802_11/ofdm_decode_mac.h>
+#include <ieee802-11/ofdm_decode_mac.h>
+
+#include "ofdm_utils.h"
+
+#include <boost/crc.hpp>
 #include <gnuradio/io_signature.h>
 #include <itpp/itcomm.h>
-
 #include <iostream>
 #include <iomanip>
 
 using namespace gr::ieee802_11;
 using namespace itpp;
 
-enum ENCODING {
-	BPSK_1_2,
-	BPSK_3_4,
-	QPSK_1_2,
-	QPSK_3_4,
-	QAM16_1_2,
-	QAM16_3_4,
-	QAM64_2_3,
-	QAM64_3_4,
-};
-
-/**
- * OFDM parameters
- */
-class GR_IEEE802_11_API ofdm_param {
-public:
-ofdm_param(ENCODING e) {
-	encoding = e;
-
-	switch(e) {
-		case BPSK_1_2:
-			n_bpsc = 1;
-			n_cbps = 48;
-			n_dbps = 24;
-			rate_field = 0x0D; // 0b00001101
-			break;
-
-		case BPSK_3_4:
-			n_bpsc = 1;
-			n_cbps = 48;
-			n_dbps = 36;
-			rate_field = 0x0F; // 0b00001111
-			break;
-
-		case QPSK_1_2:
-			n_bpsc = 2;
-			n_cbps = 96;
-			n_dbps = 48;
-			rate_field = 0x05; // 0b00000101
-			break;
-
-		case QPSK_3_4:
-			n_bpsc = 2;
-			n_cbps = 96;
-			n_dbps = 72;
-			rate_field = 0x07; // 0b00000111
-			break;
-
-		case QAM16_1_2:
-			n_bpsc = 4;
-			n_cbps = 192;
-			n_dbps = 96;
-			rate_field = 0x09; // 0b00001001
-			break;
-
-		case QAM16_3_4:
-			n_bpsc = 4;
-			n_cbps = 192;
-			n_dbps = 144;
-			rate_field = 0x0B; // 0b00001011
-			break;
-
-		case QAM64_2_3:
-			n_bpsc = 6;
-			n_cbps = 288;
-			n_dbps = 192;
-			rate_field = 0x01; // 0b00000001
-			break;
-
-		case QAM64_3_4:
-			n_bpsc = 6;
-			n_cbps = 288;
-			n_dbps = 216;
-			rate_field = 0x03; // 0b00000011
-			break;
-		defaut:
-			assert(false);
-			break;
-	}
-}
-
-void print_out() {
-	std::cout << "OFDM Parameters:" << std::endl;
-	std::cout << "endcoding :" << encoding << std::endl;
-	std::cout << "rate_field :" << (int)rate_field << std::endl;
-	std::cout << "n_bpsc :" << n_bpsc << std::endl;
-	std::cout << "n_cbps :" << n_cbps << std::endl;
-	std::cout << "n_dbps :" << n_dbps << std::endl;
-}
-
-	// data rate
-	ENCODING encoding;
-	// rate field of the SIGNAL header
-	char     rate_field;
-	// number of coded bits per sub carrier
-	int      n_bpsc;
-	// number of coded bits per OFDM symbol
-	int      n_cbps;
-	// number of data bits per OFDM symbol
-	int      n_dbps;
-};
-
-/**
- * packet specific parameters
- */
-class tx_param {
-public:
-tx_param(ofdm_param &ofdm, int psdu_length) {
-
-	psdu_size = psdu_length;
-
-	// number of symbols (17-11)
-	n_sym = (int) ceil((16 + 8 * psdu_size + 6) / (double) ofdm.n_dbps);
-
-	// number of bits of the data field (17-12)
-	n_data = n_sym * ofdm.n_dbps;
-
-	// number of padding bits (17-13)
-	n_pad = n_data - (16 + 8 * psdu_size + 6);
-
-	n_encoded_bits = n_sym * ofdm.n_cbps;
-}
-	// PSDU size in bytes
-	int psdu_size;
-	// number of OFDM symbols (17-11)
-	int n_sym;
-	// number of data bits in the DATA field, including service and padding (17-12)
-	int n_data;
-	// number of padding bits in the DATA field (17-13)
-	int n_pad;
-	int n_encoded_bits;
-
-void print_out() {
-	std::cout << "TX Parameters:" << std::endl;
-	std::cout << "psdu_size: " << psdu_size << std::endl;
-	std::cout << "n_sym: " << n_sym << std::endl;
-	std::cout << "n_data: " << n_data << std::endl;
-	std::cout << "n_pad: " << n_pad << std::endl;
-}
-
-};
-
-
-
 class ofdm_decode_mac_impl : public ofdm_decode_mac {
 
 #define dout d_debug && std::cout
-// Constructor which creates the block and also gets the OFDM and Tx_Parameters
+
 public:
-ofdm_decode_mac_impl(bool debug) : gr::block("ofdm_decode_mac",
+ofdm_decode_mac_impl(bool debug) : block("ofdm_decode_mac",
 			gr::io_signature::make(1, 1, 48 * sizeof(gr_complex)),
 			gr::io_signature::make(0, 0, 0)),
 			d_debug(debug),
 			ofdm(BPSK_1_2),
 			tx(ofdm, 0) {
-//output port is message
+
 	message_port_register_out(pmt::mp("out"));
 }
 
 ~ofdm_decode_mac_impl(){
-}
-
-// Check the CRC
-bool check_crc(char *data, int len) {
-	unsigned int crc = crc32(data, len);
-	if(crc == 558161692) {
-		return true;
-	}
-	return false;
 }
 
 int general_work (int noutput_items, gr_vector_int& ninput_items,
@@ -204,23 +54,23 @@ int general_work (int noutput_items, gr_vector_int& ninput_items,
 	int i = 0;
 
 	std::vector<gr::tag_t> tags;
-	const uint64_t nread = this->nitems_read(0);//dint understand it fully
+	const uint64_t nread = this->nitems_read(0);
 
 	dout << "Decode MAC: input " << ninput_items[0] << std::endl;
 
 	while(i < ninput_items[0]) {
-//get tags which has ofdm_start tag between the range specified
+
 		get_tags_in_range(tags, 0, nread + i * 48, nread + (i + 1) * 48 - 1,
 			pmt::string_to_symbol("ofdm_start"));
-//if there are tags from above range and keyENCODING
+
 		if(tags.size()) {
 			pmt::pmt_t tuple = tags[0].value;
-			int len_data = pmt::to_uint64(pmt::car(tuple));//get the car of the pair and convert it into unsigned int 64
-			int encoding = pmt::to_uint64(pmt::cdr(tuple));//get the cdr of pair and convert it into unsigned int 64
+			int len_data = pmt::to_uint64(pmt::car(tuple));
+			int encoding = pmt::to_uint64(pmt::cdr(tuple));
 
-			ofdm = ofdm_param((ENCODING)encoding);//now get the ofdm param
-			tx = tx_param(ofdm, len_data);//and the tx param
-//limit number of symbol to 100
+			ofdm = ofdm_param((ENCODING)encoding);
+			tx = tx_param(ofdm, len_data);
+
 			if(tx.n_sym > 100) {
 				tx.n_sym = 100;
 			}
@@ -229,7 +79,7 @@ int general_work (int noutput_items, gr_vector_int& ninput_items,
 				<< "  symbols " << tx.n_sym << "  encoding "
 				<< encoding << std::endl;
 		}
-//copy the frame
+
 		if(copied < tx.n_sym) {
 			std::memcpy(sym + (copied * 48), in, 48 * sizeof(gr_complex));
 			copied++;
@@ -237,6 +87,8 @@ int general_work (int noutput_items, gr_vector_int& ninput_items,
 			if(copied == tx.n_sym) {
 				dout << "received complete frame - decoding" << std::endl;
 				decode();
+				in += 48;
+				i++;
 				break;
 			}
 		}
@@ -249,11 +101,6 @@ int general_work (int noutput_items, gr_vector_int& ninput_items,
 	return 0;
 }
 
-void encoding(){
-	dout << "encoding begins here" << std::endl;
-	
-}
-
 void decode() {
 	if(ofdm.encoding > 3) {
 		return;
@@ -263,23 +110,21 @@ void decode() {
 	decode_conv();
 	descramble();
 	print_output();
-// skip service field
-// Create te blob with output and the size
-	pmt::pmt_t blob = pmt::make_blob(out_bytes + 2, tx.psdu_size);
-	int length = pmt::blob_length(blob);
-	pmt::pmt_t p_dict = pmt::make_dict();//create the dictionary
-	p_dict = pmt::dict_add(p_dict, pmt::mp("encoding"), pmt::from_long(ofdm.encoding));//Not sure about symbol_to_string
-//function moved to calculate CRC
-	bool crc = check_crc((char*)pmt::blob_data(blob), length);
-	dout << "crc ";
-	dout << (crc ? "correct" : "wrong") << std::endl;
 
-
-	if(!crc) {
+	// skip service field
+	boost::crc_32_type result;
+	result.process_bytes(out_bytes + 2, tx.psdu_size);
+	if(result.checksum() != 558161692) {
+		dout << "checksum wrong -- dropping" << std::endl;
 		return;
 	}
-//give the blob to output port
-	message_port_pub(pmt::mp("out"), pmt::cons(p_dict, blob));
+
+	// create PDU
+	pmt::pmt_t blob = pmt::make_blob(out_bytes + 2, tx.psdu_size - 4);
+	pmt::pmt_t enc = pmt::from_uint64(ofdm.encoding);
+	pmt::pmt_t dict = pmt::make_dict();
+	dict = pmt::dict_add(dict, pmt::mp("encoding"), enc);
+	message_port_pub(pmt::mp("out"), pmt::cons(dict, blob));
 }
 
 void demodulate() {
