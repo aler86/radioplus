@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Bastian Bloessl <bloessl@ccs-labs.org>
+ * Copyright (C) 2013 Bastian Bloessl <bloessl@ccs-labs.org>, Appended by Shashank Gaur <shashankgaur@ieee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,27 +179,17 @@ wireshark_connector_impl::general_work(int noutput, gr_vector_int& ninput_items,
 	memcpy(out, d_msg + d_msg_offset, to_copy);//copy the memory to output
 	if (fp == NULL){
 		//system("mkfifo /tmp/mine.pcap");
-		fp = popen("wireshark -k -s 0 -i -", "r");
+		fp = popen("wireshark -k -i -", "r");
 		if (!fp){
+      
 			dout << "Cannot start wireshark"<<std::endl;
 			throw std::invalid_argument("Cannot start wireshark");		
 		}
-		/*input = fopen("/tmp/mine.pcap", "wb");
-		fwrite(out, sizeof(char), sizeof(out), input);
-		fclose(input);
-		std::ofstream myfile;
-		myfile.open("/tmp/mine.pcap");
-		myfile << d_msg+d_msg_offset;
-		myfile.close();*/
-		fprintf(fp, d_msg + d_msg_offset);	
+      
+		fprintf(fp, d_msg + d_msg_offset);  
+      
 	} else if(fp != NULL){
-		/*input = fopen("/tmp/mine.pcap", "wb");
-		fwrite(out, sizeof(char), sizeof(out), input);
-		fclose(input);
-		/*std::ofstream myfile;
-		myfile.open("/tmp/mine.pcap");
-		myfile << d_msg+d_msg_offset;
-		myfile.close();*/
+
 		fprintf(fp, d_msg + d_msg_offset);
 	}
 	
