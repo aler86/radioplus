@@ -31,6 +31,7 @@ namespace foo {
 			bool        d_debug;
 			int         d_msg_offset;
 			int         d_msg_len;
+			int         input_file;
 			char*       d_msg;
 			FILE 	    *fp;
 			FILE        *input;

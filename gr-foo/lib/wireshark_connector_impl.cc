@@ -24,6 +24,11 @@
 #include <iomanip>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#define Wfifo "/tmp/demo.pcap"
 
 using namespace gr::foo;
 
@@ -178,29 +183,21 @@ wireshark_connector_impl::general_work(int noutput, gr_vector_int& ninput_items,
 	int to_copy = std::min((d_msg_len - d_msg_offset), noutput);//calculate size 
 	memcpy(out, d_msg + d_msg_offset, to_copy);//copy the memory to output
 	if (fp == NULL){
-		//system("mkfifo /tmp/mine.pcap");
-		fp = popen("wireshark -k -s 0 -i -", "r");
+		mkfifo (Wfifo, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+		fp = popen("wireshark -k -i /tmp/demo.pcap", "w");
 		if (!fp){
 			dout << "Cannot start wireshark"<<std::endl;
 			throw std::invalid_argument("Cannot start wireshark");		
 		}
-		/*input = fopen("/tmp/mine.pcap", "wb");
-		fwrite(out, sizeof(char), sizeof(out), input);
+		input = fopen(Wfifo, "wb");
+		fwrite(out, sizeof(out), to_copy, input);
 		fclose(input);
-		std::ofstream myfile;
-		myfile.open("/tmp/mine.pcap");
-		myfile << d_msg+d_msg_offset;
-		myfile.close();*/
-		fprintf(fp, d_msg + d_msg_offset);	
+		//fprintf(fp, d_msg + d_msg_offset);	
 	} else if(fp != NULL){
-		/*input = fopen("/tmp/mine.pcap", "wb");
-		fwrite(out, sizeof(char), sizeof(out), input);
+		input = fopen(Wfifo, "wb");
+		fwrite((char*)out, sizeof(char), sizeof(out), input);
 		fclose(input);
-		/*std::ofstream myfile;
-		myfile.open("/tmp/mine.pcap");
-		myfile << d_msg+d_msg_offset;
-		myfile.close();*/
-		fprintf(fp, d_msg + d_msg_offset);
+		//fprintf(fp, d_msg + d_msg_offset);
 	}
 	
 	dout << "WIRESHARK: d_msg_offset: " <<  d_msg_offset <<
