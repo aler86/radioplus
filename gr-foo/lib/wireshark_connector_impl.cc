@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Bastian Bloessl <bloessl@ccs-labs.org>
+ * Copyright (C) 2013 Bastian Bloessl <bloessl@ccs-labs.org>, Appended by Shashank Gaur <shashankgaur@ieee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -183,12 +183,19 @@ wireshark_connector_impl::general_work(int noutput, gr_vector_int& ninput_items,
 	int to_copy = std::min((d_msg_len - d_msg_offset), noutput);//calculate size 
 	memcpy(out, d_msg + d_msg_offset, to_copy);//copy the memory to output
 	if (fp == NULL){
+<<<<<<< HEAD
 		mkfifo (Wfifo, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 		fp = popen("wireshark -k -i /tmp/demo.pcap", "w");
+=======
+		//system("mkfifo /tmp/mine.pcap");
+		fp = popen("wireshark -k -i -", "r");
+>>>>>>> 5a1ed0587f1537cc377ee75aa312f66bac204865
 		if (!fp){
+      
 			dout << "Cannot start wireshark"<<std::endl;
 			throw std::invalid_argument("Cannot start wireshark");		
 		}
+<<<<<<< HEAD
 		input = fopen(Wfifo, "wb");
 		fwrite(out, sizeof(out), to_copy, input);
 		fclose(input);
@@ -198,6 +205,14 @@ wireshark_connector_impl::general_work(int noutput, gr_vector_int& ninput_items,
 		fwrite((char*)out, sizeof(char), sizeof(out), input);
 		fclose(input);
 		//fprintf(fp, d_msg + d_msg_offset);
+=======
+      
+		fprintf(fp, d_msg + d_msg_offset);  
+      
+	} else if(fp != NULL){
+
+		fprintf(fp, d_msg + d_msg_offset);
+>>>>>>> 5a1ed0587f1537cc377ee75aa312f66bac204865
 	}
 	
 	dout << "WIRESHARK: d_msg_offset: " <<  d_msg_offset <<
