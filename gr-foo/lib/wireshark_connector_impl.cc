@@ -29,6 +29,24 @@
 #include <unistd.h>
 #define Wfifo "/tmp/demo2.pcap"
 
+
+// win32 (mingw/msvc) specific
+#ifdef HAVE_IO_H
+#include <io.h>
+#endif
+#ifdef O_BINARY
+#define	OUR_O_BINARY O_BINARY
+#else
+#define	OUR_O_BINARY 0
+#endif
+
+// should be handled via configure
+#ifdef O_LARGEFILE
+#define	OUR_O_LARGEFILE	O_LARGEFILE
+#else
+#define	OUR_O_LARGEFILE 0
+#endif
+
 using namespace gr::foo;
 
 
@@ -44,7 +62,7 @@ wireshark_connector_impl::wireshark_connector_impl(LinkType type, bool debug) :
 
 	message_port_register_in(pmt::mp("in"));//declaring input port as message port
 	fp = NULL;
-	input = NULL;
+	//input = NULL;
 	d_msg_len = sizeof(pcap_file_hdr);//pcap_file_hdr is structure defined in the header file, line 43
 	d_msg = reinterpret_cast<char*>(std::malloc(d_msg_len));//type casting using reinterpret_cast, memory allocated and then saved as character in d_msg
 	int status;
@@ -188,23 +206,30 @@ wireshark_connector_impl::general_work(int noutput, gr_vector_int& ninput_items,
 	fwrite(out, sizeof(out), to_copy, input);
 	fclose(input);*/
 	if (fp == NULL){
-		//mkfifo("/tmp/demo2.pcap",  S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+		//std::cout << "creating"<<std::endl;
+		//system("mkfifo /tmp/shashank.pcap");	
+		//mkfifo("/tmp/shashank.pcap",  S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+		//std::cout << "created"<<std::endl;
 		//system("mkfifo Wfifo");
-		fp = popen("wireshark -k -i /tmp/demo2.pcap", "w");
+		//system("mkfifo /tmp/shashank.pcap");		
+		fp = popen("wireshark -k -i /tmp/shashank.pcap", "w");
 		if (!fp){
 			dout << "Cannot start wireshark"<<std::endl;
 			throw std::invalid_argument("Cannot start wireshark");		
 		}
-		input = fopen(Wfifo, "a+");
-		fwrite(out, sizeof(out), to_copy, input);
-		fclose(input);
+	}
+		/*input = open(Wfifo, O_WRONLY|O_CREAT|O_APPEND|OUR_O_LARGEFILE|OUR_O_BINARY, 0664);
+		//fwrite(out, sizeof(out), to_copy, input);
+		write(input, out, to_copy);
+		close(input);
 		//fprintf(fp, d_msg + d_msg_offset);	
 	} else if(fp != NULL){
-		input = fopen(Wfifo, "a+");
-		fwrite(out, sizeof(out), to_copy, input);
-		fclose(input);
+		input = open(Wfifo, O_WRONLY|O_CREAT|O_APPEND|OUR_O_LARGEFILE|OUR_O_BINARY, 0664);
+		//fwrite(out, sizeof(out), to_copy, input);
+		write(input, out, to_copy);
+		close(input);
 		//fprintf(fp, d_msg + d_msg_offset);
-	}
+	}*/
 	
 	dout << "WIRESHARK: d_msg_offset: " <<  d_msg_offset <<
 		"   to_copy: " << to_copy << 
